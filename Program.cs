@@ -21,7 +21,6 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<iStolo1DbContext>()
     .AddDefaultTokenProviders();
 
-
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Configure your identity options
@@ -55,19 +54,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Register}/{id?}");
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-        name: "account",
-        pattern: "Account/{action=Register}/{id?}",
-        defaults: new { controller = "Account", action = "Register" }
-    );
-
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-});
+    pattern: "{controller=Account}/{action=Register}/{id?}");
 
 app.Run();
+

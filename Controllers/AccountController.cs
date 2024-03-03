@@ -31,7 +31,7 @@ namespace iStolo1.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Register", "Home");
+                    return RedirectToAction("Index", "Home"); // Redirect to home page after successful registration
                 }
                 foreach (var error in result.Errors)
                 {
@@ -55,7 +55,7 @@ namespace iStolo1.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.AccountPassword, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Register", "Home");
+                    return RedirectToAction("Index", "Home"); // Redirect to home page after successful login
                 }
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
@@ -66,8 +66,7 @@ namespace iStolo1.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Register", "Home");
+            return RedirectToAction("Login", "Account"); // Redirect to login page after logout
         }
     }
-
 }

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace iStolo1.Models
 {
-    public class User
+    public class User : IdentityUser<string>
     {
         [Key]
         public int UserId { get; set; }

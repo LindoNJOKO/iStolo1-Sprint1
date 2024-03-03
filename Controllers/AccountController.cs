@@ -30,6 +30,7 @@ namespace iStolo1.Controllers
                 var result = await _userManager.CreateAsync(user, model.AccountPassword);
                 if (result.Succeeded)
                 {
+                    Console.WriteLine("Form submitted successfully!");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home"); // Redirect to home page after successful registration
                 }

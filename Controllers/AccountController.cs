@@ -30,9 +30,8 @@ namespace iStolo1.Controllers
                 var result = await _userManager.CreateAsync(user, model.AccountPassword);
                 if (result.Succeeded)
                 {
-                    Console.WriteLine("Form submitted successfully!");
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home"); // Redirect to home page after successful registration
+                    return RedirectToAction("Main", "Home"); // Redirect to home page after successful registration
                 }
                 foreach (var error in result.Errors)
                 {
@@ -56,7 +55,7 @@ namespace iStolo1.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.AccountPassword, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home"); // Redirect to home page after successful login
+                    return RedirectToAction("Main", "Home"); // Redirect to home page after successful login
                 }
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }

@@ -14,5 +14,6 @@ namespace iStolo1.Models
         public string PaymentMethod { get; set; }
         public string Adress { get; set; }
         public string Username { get; internal set; }
+        public string Role { get; set; }
     }
 }

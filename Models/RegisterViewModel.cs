@@ -29,6 +29,8 @@ namespace iStolo1.Models
         [DataType(DataType.Password)]
         [Compare("AccountPassword", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
     }
+
 
 }

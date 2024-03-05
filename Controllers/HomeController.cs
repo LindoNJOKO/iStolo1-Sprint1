@@ -8,11 +8,6 @@ namespace iStolo1.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public IActionResult Main()
-        {
-            return View();
-        }
-
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
@@ -21,6 +16,16 @@ namespace iStolo1.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult Main()
+        {
+            var model = new MainViewModel
+            {
+                Message = "Welcome to the Main Page"
+            };
+
+            return View(model);
         }
 
         public IActionResult Privacy()

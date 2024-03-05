@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Net;
+using System.Net.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +56,13 @@ app.UseRouting();
 
 app.UseAuthentication(); // Add this line for authentication
 app.UseAuthorization();
+
+// Adding certificate validation callback (for testing/debugging only)
+app.Use(async (context, next) =>
+{
+    ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+    await next();
+});
 
 app.MapControllerRoute(
     name: "default",

@@ -37,14 +37,15 @@ namespace iStolo1.Controllers
                     Adress = model.Adress,
                     PaymentMethod = model.PaymentMethod,
                     Email = model.Email,
-                    UserName = model.Username
+                    UserName = model.Username,
+                    AccountPassword = model.AccountPassword
                 };
 
                 var result = await _userManager.CreateAsync(user, model.AccountPassword);
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Main", "Home"); // Redirect to home page after successful registration
+                    return RedirectToAction("Main", "Home"); // Redirect to main view after successful registration
                 }
 
                 foreach (var error in result.Errors)
@@ -68,6 +69,13 @@ namespace iStolo1.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check if the user is the admin
+                if (model.Username == "Admin" && model.AccountPassword == "Password123!")
+                {
+                    // Redirect admin to Main.cshtml
+                    return RedirectToAction("Main", "Home");
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.AccountPassword, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
@@ -83,6 +91,7 @@ namespace iStolo1.Controllers
             }
             return View(model);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()

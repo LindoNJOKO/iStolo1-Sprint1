@@ -8,6 +8,10 @@ namespace iStolo1.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        public IActionResult Main()
+        {
+            return View();
+        }
 
         public HomeController(ILogger<HomeController> logger)
         {

@@ -34,6 +34,9 @@ builder.Services.AddControllersWithViews()
     .AddControllersAsServices()
     .AddApplicationPart(typeof(AccountController).Assembly);
 
+// Add logging services
+builder.Services.AddLogging();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,11 +55,8 @@ app.UseRouting();
 app.UseAuthentication(); // Add this line for authentication
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-});
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Register}/{id?}");
 
 app.Run();

@@ -1,6 +1,8 @@
-﻿using iStolo1.Models;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using iStolo1.Models;
 
 namespace iStolo1.Controllers
 {
@@ -8,11 +10,13 @@ namespace iStolo1.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -26,18 +30,30 @@ namespace iStolo1.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new User { Username = model.Username };
+                var user = new User
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Adress = model.Adress,
+                    PaymentMethod = model.PaymentMethod,
+                    Email = model.Email,
+                    UserName = model.Username
+                };
+
                 var result = await _userManager.CreateAsync(user, model.AccountPassword);
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Main", "Home"); // Redirect to home page after successful registration
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
+            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -57,7 +73,13 @@ namespace iStolo1.Controllers
                 {
                     return RedirectToAction("Main", "Home"); // Redirect to home page after successful login
                 }
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                else
+                {
+                    // Log the unsuccessful login attempt
+                    _logger.LogWarning("Unsuccessful login attempt for username: {0}", model.Username);
+
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                }
             }
             return View(model);
         }

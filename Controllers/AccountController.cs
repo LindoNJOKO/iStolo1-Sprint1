@@ -79,7 +79,7 @@ namespace iStolo1.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.AccountPassword, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Main", "Home"); // Redirect to home page after successful login
+                    return RedirectToAction("Main", "Home"); 
                 }
                 else
                 {

@@ -10,11 +10,40 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Net.Http;
+using FirebaseAdmin;
+//using Google.Apis.Auth.AspNetCore3;
+using Microsoft.AspNetCore.Builder.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Firebase Configuration
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile("C:\\Users\\lindo\\source\\repos\\iStolo1\\istolo-f1a0d-firebase-adminsdk-pwuwv-24e0813f06.json")
+});
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://securetoken.google.com/your-firebase-project-id";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://securetoken.google.com/your-firebase-project-id",
+            ValidateAudience = true,
+            ValidAudience = "istolo-f1a0d\r\n",
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<iStolo1DbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -66,6 +95,6 @@ app.Use(async (context, next) =>
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Register}/{id?}");
+    pattern: "{controller=Home}/{action=Main}/{id?}");
 
 app.Run();

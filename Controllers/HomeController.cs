@@ -28,6 +28,19 @@ namespace iStolo1.Controllers
             return View(model);
         }
 
+        public ActionResult ProductDetails()
+        {
+            var product = new Products
+            {
+                ProductId = 1, // Set the product ID as needed
+                Price = 10, // Set the price as needed
+                Title = "Sample Product", // Set the title as needed
+                ProductDescription = "Sample Product Description" // Set the description as needed
+            };
+
+            return View("View", product);
+        }
+
         public IActionResult Privacy()
         {
             return View();

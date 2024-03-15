@@ -1,22 +1,22 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Firebase.Auth;
+using Newtonsoft.Json;
 using iStolo1.Models;
 
 namespace iStolo1.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly ILogger<AccountController> _logger;
+        private FirebaseAuthProvider _auth;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger)
+        public AccountController()
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
+            _auth = new FirebaseAuthProvider(new FirebaseConfig(Environment.GetEnvironmentVariable("FirebaseMathApp")));
         }
 
         [HttpGet]
@@ -28,34 +28,30 @@ namespace iStolo1.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var user = new User
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Adress = model.Adress,
-                    PaymentMethod = model.PaymentMethod,
-                    Email = model.Email,
-                    UserName = model.Username,
-                    AccountPassword = model.AccountPassword
-                };
+                var authLink = await _auth.CreateUserWithEmailAndPasswordAsync(model.Email, model.AccountPassword);
+                string currentUserId = authLink.User.LocalId;
 
-                var result = await _userManager.CreateAsync(user, model.AccountPassword);
-                if (result.Succeeded)
+                if (currentUserId != null)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Main", "Home"); // Redirect to main view after successful registration
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    //After successful registration
+                    return RedirectToAction("Main", "Home");
                 }
             }
+            catch (FirebaseAuthException ex)
+            {
+                var firebaseEx = JsonConvert.DeserializeObject<FirebaseErrorModel>(ex.ResponseData);
+                ModelState.AddModelError(string.Empty, firebaseEx.error.message);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            return View();
         }
 
         [HttpGet]
@@ -67,37 +63,58 @@ namespace iStolo1.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Check if the user is the admin
-                if (model.Username == "Admin" && model.AccountPassword == "Password123!")
+                var authLink = await _auth.SignInWithEmailAndPasswordAsync(model.Username, model.AccountPassword);
+                string currentUserId = authLink.User.LocalId;
+
+                if (currentUserId != null)
                 {
-                    // Redirect admin to Main.cshtml
+                    // Your logic after successful login
                     return RedirectToAction("Main", "Home");
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.AccountPassword, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Main", "Home"); 
-                }
-                else
-                {
-                    // Log the unsuccessful login attempt
-                    _logger.LogWarning("Unsuccessful login attempt for username: {0}", model.Username);
+            }
+            catch (FirebaseAuthException ex)
+            {
+                var firebaseEx = JsonConvert.DeserializeObject<FirebaseErrorModel>(ex.ResponseData);
+                ModelState.AddModelError(string.Empty, firebaseEx.error.message);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
 
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult LogOut()
+        {
+            // Implement logout logic here
+            return RedirectToAction("Login");
+        }
+
+        // Other action methods...
+
+        [HttpPost]
+        public async Task<IActionResult> AddInventoryItem(ItemViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Implement logic to add item to inventory
+                return RedirectToAction("Inventory", "Home");
             }
             return View(model);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> AddQuantity(int itemId, int quantity)
         {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account"); // Redirect to login page after logout
+            // Implement logic to add quantity to an item in inventory
+            return RedirectToAction("Inventory", "Home");
         }
     }
 }
